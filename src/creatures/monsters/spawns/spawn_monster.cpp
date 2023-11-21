@@ -233,9 +233,9 @@ void SpawnMonster::startup(bool delayed) {
 			continue;
 		}
 		if (delayed) {
-			g_dispatcher().addEvent(std::bind(&SpawnMonster::scheduleSpawn, this, spawnMonsterId, sb, mType, 0), "SpawnMonster::startup");
+			g_dispatcher().addEvent(std::bind(&SpawnMonster::scheduleSpawn, this, spawnMonsterId, sb, mType, 0, true), "SpawnMonster::startup");
 		} else {
-			scheduleSpawn(spawnMonsterId, sb, mType, 0);
+			scheduleSpawn(spawnMonsterId, sb, mType, 0, true);
 		}
 	}
 }
@@ -286,12 +286,12 @@ void SpawnMonster::checkSpawnMonster() {
 	}
 }
 
-void SpawnMonster::scheduleSpawn(uint32_t spawnMonsterId, spawnBlock_t &sb, const std::shared_ptr<MonsterType> mType, uint16_t interval) {
+void SpawnMonster::scheduleSpawn(uint32_t spawnMonsterId, spawnBlock_t &sb, const std::shared_ptr<MonsterType> mType, uint16_t interval, bool startup /*= false*/) {
 	if (interval <= 0) {
-		spawnMonster(spawnMonsterId, mType, sb.pos, sb.direction);
+		spawnMonster(spawnMonsterId, mType, sb.pos, sb.direction, startup);
 	} else {
 		g_game().addMagicEffect(sb.pos, CONST_ME_TELEPORT);
-		g_dispatcher().scheduleEvent(1400, std::bind(&SpawnMonster::scheduleSpawn, this, spawnMonsterId, sb, mType, interval - NONBLOCKABLE_SPAWN_MONSTER_INTERVAL), "SpawnMonster::scheduleSpawn");
+		g_dispatcher().scheduleEvent(1400, std::bind(&SpawnMonster::scheduleSpawn, this, spawnMonsterId, sb, mType, interval - NONBLOCKABLE_SPAWN_MONSTER_INTERVAL, startup), "SpawnMonster::scheduleSpawn");
 	}
 }
 
